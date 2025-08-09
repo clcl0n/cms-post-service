@@ -35,5 +35,6 @@ public static class DependencyInjection
         services.AddScoped<IPostWorkflowBackCommandHandler, PostWorkflowBackCommandHandler>();
         services.AddScoped<IPostWorkflowNextCommandHandler, PostWorkflowNextCommandHandler>();
         services.AddScoped<IPostBulkSitemapDataCommandHandler, PostBulkSitemapDataCommandHandler>();
+        services.AddScoped<IPostGetPaginationQueryHandler, PostGetPaginationQueryHandler>();
     }
 }

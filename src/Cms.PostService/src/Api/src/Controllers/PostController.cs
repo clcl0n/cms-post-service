@@ -20,10 +20,26 @@ public class PostController(
     IPostUpdateCommandHandler postUpdateCommandHandler,
     IPostDeleteCommandHandler postDeleteCommandHandler,
     IPostGetByIdQueryHandler postGetByIdQueryHandler,
+    IPostGetPaginationQueryHandler postGetPaginationQueryHandler,
     IPostWorkflowNextCommandHandler postWorkflowNextCommandHandler,
     IPostWorkflowBackCommandHandler postWorkflowBackCommandHandler
 ) : ControllerBase
 {
+    [HttpGet("pagination")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(PostGetPaginationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> PaginationAsync(
+        [FromQuery] PostGetPaginationRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        var response = await postGetPaginationQueryHandler.HandleAsync(request, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpGet("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(PostGetByIdResponse), StatusCodes.Status200OK)]

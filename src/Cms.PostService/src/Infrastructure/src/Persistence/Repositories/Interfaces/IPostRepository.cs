@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cms.PostService.Domain.Entities;
 using Cms.PostService.Infrastructure.Persistence.Repositories.Base.Interfaces;
 using Cms.PostService.Infrastructure.Persistence.Repositories.Projections;
+using Cms.PostService.Infrastructure.Persistence.Repositories.Queries;
 
 namespace Cms.PostService.Infrastructure.Persistence.Repositories.Interfaces;
 
@@ -24,6 +25,11 @@ public interface IPostRepository : IBaseRepository<Post>
 
     Task<PostWithDetailsProjection?> GetByIdWithDetailsAsync(
         Guid id,
-        CancellationToken cancellationToke
+        CancellationToken cancellationToken
+    );
+
+    Task<(List<PostPaginationProjection> items, int totalCount)> GetPaginationAsync(
+        PostPaginationQuery query,
+        CancellationToken cancellationToken
     );
 }

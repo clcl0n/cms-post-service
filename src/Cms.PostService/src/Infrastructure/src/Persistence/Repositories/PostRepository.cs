@@ -7,6 +7,7 @@ using Cms.PostService.Domain.Entities;
 using Cms.PostService.Infrastructure.Persistence.Repositories.Base;
 using Cms.PostService.Infrastructure.Persistence.Repositories.Interfaces;
 using Cms.PostService.Infrastructure.Persistence.Repositories.Projections;
+using Cms.PostService.Infrastructure.Persistence.Repositories.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cms.PostService.Infrastructure.Persistence.Repositories;
@@ -88,5 +89,30 @@ internal sealed class PostRepository(DbContext dbContext)
                 BodyBlocks = x.BodyBlocks.ToList(),
             })
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public async Task<(List<PostPaginationProjection> items, int totalCount)> GetPaginationAsync(
+        PostPaginationQuery query,
+        CancellationToken cancellationToken
+    )
+    {
+        var efQuery = Entities
+            .AsNoTracking()
+            .OrderBy(x => x.Id)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize);
+
+        var totalCount = await efQuery.CountAsync(cancellationToken);
+        var items = await efQuery
+            .Select(x => new PostPaginationProjection
+            {
+                Id = x.Id,
+                Title = x.Title,
+                BodyPlainText = x.BodyPlainText,
+                TopicId = x.TopicId,
+            })
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 }
