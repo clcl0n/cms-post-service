@@ -1,10 +1,11 @@
 using System;
+using Cms.PostService.Domain.Constants;
 
 namespace Cms.PostService.Application.Contracts.Queries.Post.GetById;
 
 public record PostGetPaginationResponseItem(
     Guid Id,
     string Title,
-    string BodyPlainText,
-    Guid TopicId
+    string TopicTitle,
+    PostStatus Status
 );

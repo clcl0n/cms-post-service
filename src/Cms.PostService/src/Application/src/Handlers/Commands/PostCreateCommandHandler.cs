@@ -10,6 +10,7 @@ using Cms.PostService.Domain.Constants;
 using Cms.PostService.Domain.Entities;
 using Cms.PostService.Domain.Entities.BodyBlocks;
 using Cms.PostService.Domain.Factories;
+using Cms.PostService.Infrastructure.Contracts.Commands;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -27,7 +28,7 @@ internal sealed class PostCreateCommandHandler(IUnitOfWork unitOfWork, IRouteSer
         var bodyPlainText = GetBodyPlainText(bodyBlocks);
 
         var slug = SlugFactory.Create(request.Title);
-        var route = await routeService.CreatePostRouteAsync(slug, cancellationToken);
+        var route = await routeService.CreatePostRouteAsync(new CreatePostRouteCommand(slug), cancellationToken);
 
         var newPost = new Post
         {

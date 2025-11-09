@@ -20,7 +20,7 @@ public static class Program
 
         var healthChecksBuilder = builder.Services.AddHealthChecks();
 
-        builder.Services.AddApplication(healthChecksBuilder, builder.Configuration);
+        builder.Services.AddApplication(builder.Configuration, healthChecksBuilder);
 
         builder
             .Services.AddControllers(options =>

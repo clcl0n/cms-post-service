@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cms.PostService.Application.Contracts.Commands.Topic;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
+using Cms.PostService.Infrastructure.Contracts.Commands;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -23,7 +24,7 @@ internal sealed class TopicDeleteCommandHandler(IRouteService routeService, IUni
 
         foreach (var route in topic.Routes)
         {
-            await routeService.DeleteTopicRouteAsync(route.Id, cancellationToken);
+            await routeService.DeleteTopicRouteAsync(new DeleteTopicRouteCommand(route.Id), cancellationToken);
         }
     }
 }

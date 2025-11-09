@@ -5,6 +5,7 @@ using Cms.PostService.Application.Contracts.Commands.SubTopic;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
 using Cms.PostService.Domain.Entities;
 using Cms.PostService.Domain.Factories;
+using Cms.PostService.Infrastructure.Contracts.Commands;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -48,7 +49,7 @@ internal sealed class SubTopicUpdateCommandHandler(
             existingEntity.Slug = SlugFactory.Create(request.Title);
 
             var newRoute = await routeService.CreateTopicRouteAsync(
-                existingEntity.Slug,
+                new CreateTopicRouteCommand(existingEntity.Slug),
                 cancellationToken
             );
             existingEntity.Routes.Add(new Route { Id = newRoute.Id, CreatedAt = DateTime.UtcNow });

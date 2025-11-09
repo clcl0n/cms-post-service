@@ -43,8 +43,8 @@ internal sealed class PostGetPaginationQueryHandler(IUnitOfWork unitOfWork)
             Items: items.Select(item => new PostGetPaginationResponseItem(
                 Id: item.Id,
                 Title: item.Title,
-                BodyPlainText: item.BodyPlainText,
-                TopicId: item.TopicId
+                Status: item.Status,
+                TopicTitle: item.TopicTitle
             ))
         );
     }

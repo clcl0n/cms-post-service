@@ -9,6 +9,7 @@ using Cms.PostService.Domain.Builders;
 using Cms.PostService.Domain.Entities;
 using Cms.PostService.Domain.Entities.BodyBlocks;
 using Cms.PostService.Domain.Factories;
+using Cms.PostService.Infrastructure.Contracts.Commands;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -52,7 +53,7 @@ internal sealed class PostUpdateCommandHandler(IUnitOfWork unitOfWork, IRouteSer
             existingEntity.Slug = SlugFactory.Create(request.Title);
 
             var newRoute = await routeService.CreatePostRouteAsync(
-                existingEntity.Slug,
+                new CreatePostRouteCommand(existingEntity.Slug),
                 cancellationToken
             );
             existingEntity.Routes.Add(new Route { Id = newRoute.Id, CreatedAt = DateTime.UtcNow });

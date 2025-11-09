@@ -9,20 +9,36 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using static Cms.Protos.PostRouteService;
+using static Cms.Protos.TopicRouteService;
+
 namespace Cms.PostService.Infrastructure;
 
 public static class DependencyInjection
 {
     public static void AddInfrastructure(
         this IServiceCollection services,
-        IHealthChecksBuilder healthChecksBuilder,
+        IHealthChecksBuilder? healthChecksBuilder,
         IConfiguration configuration
     )
     {
-        healthChecksBuilder.AddInfrastructureHealthChecks(configuration);
+        healthChecksBuilder?.AddInfrastructureHealthChecks(configuration);
 
         services.AddDbContext(configuration);
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddGrpcClient<PostRouteServiceClient>(o =>
+        {
+            // TODO: konfiguracia
+            o.Address = new Uri("http://localhost:5022");
+        })
+        .AddStandardResilienceHandler();
+        services.AddGrpcClient<TopicRouteServiceClient>(o =>
+        {
+            // TODO: konfiguracia
+            o.Address = new Uri("http://localhost:5022");
+        })
+        .AddStandardResilienceHandler();
 
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<IRouteService, RouteService>();

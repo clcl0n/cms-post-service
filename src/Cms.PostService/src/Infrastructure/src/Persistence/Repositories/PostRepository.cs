@@ -104,12 +104,13 @@ internal sealed class PostRepository(DbContext dbContext)
 
         var totalCount = await efQuery.CountAsync(cancellationToken);
         var items = await efQuery
+            .Include(x => x.Topic)
             .Select(x => new PostPaginationProjection
             {
                 Id = x.Id,
                 Title = x.Title,
-                BodyPlainText = x.BodyPlainText,
-                TopicId = x.TopicId,
+                Status = x.Status,
+                TopicTitle = x.Topic!.Title,
             })
             .ToListAsync(cancellationToken);
 

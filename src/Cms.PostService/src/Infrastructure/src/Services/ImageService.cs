@@ -7,6 +7,7 @@ using Wolverine;
 
 namespace Cms.PostService.Infrastructure.Services;
 
+// TODO: grpc
 internal sealed class ImageService(IMessageBus bus) : IImageService
 {
     public Task<ImageGetByIdResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)

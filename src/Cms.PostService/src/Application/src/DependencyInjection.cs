@@ -12,8 +12,8 @@ public static class DependencyInjection
 {
     public static void AddApplication(
         this IServiceCollection services,
-        IHealthChecksBuilder healthChecksBuilder,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IHealthChecksBuilder? healthChecksBuilder = null
     )
     {
         services.AddInfrastructure(healthChecksBuilder, configuration);

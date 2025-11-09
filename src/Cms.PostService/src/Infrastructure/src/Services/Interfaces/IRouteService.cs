@@ -1,33 +1,33 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Cms.Contracts.Routes;
+using Cms.PostService.Infrastructure.Contracts.Commands;
+using Cms.PostService.Infrastructure.Contracts.Queries;
 
 namespace Cms.PostService.Infrastructure.Services.Interfaces;
 
 public interface IRouteService
 {
-    Task<TopicRouteCreateResponse> CreateTopicRouteAsync(
-        string slug,
+    Task<CreateTopicRouteCommandResult> CreateTopicRouteAsync(
+        CreateTopicRouteCommand command,
         CancellationToken cancellationToken
     );
 
-    Task<PostRouteCreateResponse> CreatePostRouteAsync(
-        string slug,
+    Task<CreatePostRouteCommandResult> CreatePostRouteAsync(
+        CreatePostRouteCommand command,
         CancellationToken cancellationToken
     );
 
-    Task<TopicRouteGetByIdResponse> GetTopicRouteByIdAsync(
-        Guid id,
+    Task<TopicRouteByIdQueryResult> GetTopicRouteByIdAsync(
+        TopicRouteByIdQuery query,
         CancellationToken cancellationToken
     );
 
-    Task<PostRouteGetByIdResponse> GetPostRouteByIdAsync(
-        Guid id,
+    Task<PostRouteByIdQueryResult> GetPostRouteByIdAsync(
+        PostRouteByIdQuery query,
         CancellationToken cancellationToken
     );
 
-    Task DeleteTopicRouteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteTopicRouteAsync(DeleteTopicRouteCommand command, CancellationToken cancellationToken);
 
-    Task DeletePostRouteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeletePostRouteAsync(DeletePostRouteCommand command, CancellationToken cancellationToken);
 }

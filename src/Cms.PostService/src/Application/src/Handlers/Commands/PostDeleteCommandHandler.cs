@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cms.PostService.Application.Contracts.Commands.Post;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
+using Cms.PostService.Infrastructure.Contracts.Commands;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -28,7 +29,7 @@ internal sealed class PostDeleteCommandHandler(
 
         foreach (var route in post.Routes)
         {
-            await routeService.DeletePostRouteAsync(route.Id, cancellationToken);
+            await routeService.DeletePostRouteAsync(new DeletePostRouteCommand(route.Id), cancellationToken);
         }
     }
 }
