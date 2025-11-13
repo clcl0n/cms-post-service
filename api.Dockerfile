@@ -11,7 +11,7 @@ WORKDIR /App
 COPY ./src .
 
 # Build Api
-WORKDIR /App/Cms.PostService/src/Api/src
+WORKDIR /App/Cms.PostService/Api/src
 
 # Build and publish a release
 RUN dotnet publish -c Release -o out
@@ -20,7 +20,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine as runtime-env
 
 WORKDIR /App
 
-COPY --from=build-env /App/Cms.PostService/src/Api/src/out .
+COPY --from=build-env /App/Cms.PostService/Api/src/out .
 
 RUN apk update
 RUN apk add bash

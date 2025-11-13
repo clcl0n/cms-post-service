@@ -5,6 +5,7 @@ using Cms.PostService.Application.Contracts.Commands.Post;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
 using Cms.PostService.Domain.Constants;
 using Cms.PostService.Domain.Workflows;
+using Cms.PostService.Infrastructure.Contracts.Queries;
 using Cms.PostService.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using Cms.PostService.Infrastructure.Services.Interfaces;
 
@@ -39,7 +40,7 @@ internal sealed class PostWorkflowNextCommandHandler(
         {
             var latestRoute = post.Routes.OrderByDescending(route => route.CreatedAt).First();
 
-            var route = await routeService.GetPostRouteByIdAsync(latestRoute.Id, cancellationToken);
+            var route = await routeService.GetPostRouteByIdAsync(new PostRouteByIdQuery(latestRoute.Id), cancellationToken);
 
             await sitemapService.ScheduleUpsertUrlAsync(post.Id, route.FullPath, post.LastModified);
         }

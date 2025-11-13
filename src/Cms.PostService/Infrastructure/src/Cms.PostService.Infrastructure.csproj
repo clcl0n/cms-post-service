@@ -6,11 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\..\..\..\..\..\cms-protos\post-route-service.proto" GrpcServices="Client" />
-    <Protobuf Include="..\..\..\..\..\..\cms-protos\topic-route-service.proto" GrpcServices="Client" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
@@ -36,6 +31,7 @@
     <PackageReference Include="Grpc.Tools" Version="2.76.0" />
 
     <PackageReference Include="Cms.Contracts" Version="1.0.0" />
+    <PackageReference Include="Cms.Protos" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>
