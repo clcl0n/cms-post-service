@@ -3,6 +3,10 @@
 		{
 			"name": "Cms.PostService",
 			"path": "."
+		},
+		{
+			"name": "Cms.Protos",
+			"path": "../cms-protos"
 		}
 	],
 	"settings": {
