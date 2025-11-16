@@ -20,8 +20,8 @@ namespace Cms.PostService.Application.Handlers.Commands;
 internal sealed class PostCreateCommandHandler(IUnitOfWork unitOfWork, IRouteService routeService)
     : IPostCreateCommandHandler
 {
-    public async Task<PostCreateQueryResponse> HandleAsync(
-        PostCreateQuery request,
+    public async Task<PostCreateCommandResponse> HandleAsync(
+        PostCreateCommand request,
         CancellationToken cancellationToken
     )
     {
@@ -84,9 +84,9 @@ internal sealed class PostCreateCommandHandler(IUnitOfWork unitOfWork, IRouteSer
         return bodyPlainTextBuilder.GetResult();
     }
 
-    private static PostCreateQueryResponse ToPostCreateQueryResponse(Post post)
+    private static PostCreateCommandResponse ToPostCreateQueryResponse(Post post)
     {
-        return new PostCreateQueryResponse(
+        return new PostCreateCommandResponse(
             post.Id,
             post.Title,
             post.ListingImageId,

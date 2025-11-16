@@ -2,6 +2,9 @@ using System;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using Cms.PostService.Api.Contracts.Requests;
+using Cms.PostService.Api.Contracts.Responses;
+using Cms.PostService.Api.Mappings;
 using Cms.PostService.Application.Contracts.Commands;
 using Cms.PostService.Application.Contracts.Queries;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
@@ -22,34 +25,44 @@ public class SubTopicController(
 {
     [HttpGet("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(SubTopicGetByIdQueryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(SubTopicGetByIdResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByIdAsync(
+    public async Task<ActionResult<SubTopicGetByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
-        var response = await subTopicGetByIdQueryHandler.HandleAsync(
-            new SubTopicGetByIdQuery(id),
-            cancellationToken
-        );
+        var query = new SubTopicGetByIdQuery(id);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await subTopicGetByIdQueryHandler.HandleAsync(query, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = SubTopicResponseMappings.ToSubTopicGetByIdResponse(response);
+
+        return Ok(result);
     }
 
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(SubTopicCreateCommandResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(SubTopicCreateResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateAsync(
-        [FromBody] SubTopicCreateCommand request,
+    public async Task<ActionResult<SubTopicCreateResponse>> CreateAsync(
+        [FromBody] SubTopicCreateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await subTopicCreateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = new SubTopicCreateCommand(request.ParentTopicId, request.Title);
 
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+        var response = await subTopicCreateCommandHandler.HandleAsync(command, cancellationToken);
+
+        var result = SubTopicResponseMappings.ToSubTopicCreateResponse(response);
+
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
@@ -58,13 +71,23 @@ public class SubTopicController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateAsync(
-        [FromBody] SubTopicUpdateCommand request,
+        [FromRoute] Guid id,
+        [FromBody] SubTopicUpdateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await subTopicUpdateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = new SubTopicUpdateCommand(id, request.Title);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await subTopicUpdateCommandHandler.HandleAsync(command, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = SubTopicResponseMappings.ToSubTopicUpdateResponse(response);
+
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
@@ -77,10 +100,9 @@ public class SubTopicController(
         CancellationToken cancellationToken
     )
     {
-        await subTopicDeleteCommandHandler.HandleAsync(
-            new SubTopicDeleteCommand(id),
-            cancellationToken
-        );
+        var command = new SubTopicDeleteCommand(id);
+
+        await subTopicDeleteCommandHandler.HandleAsync(command, cancellationToken);
 
         return NoContent();
     }

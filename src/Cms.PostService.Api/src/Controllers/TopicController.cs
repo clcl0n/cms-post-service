@@ -2,6 +2,9 @@ using System;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using Cms.PostService.Api.Contracts.Requests;
+using Cms.PostService.Api.Contracts.Responses;
+using Cms.PostService.Api.Mappings;
 using Cms.PostService.Application.Contracts.Commands;
 using Cms.PostService.Application.Contracts.Queries;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
@@ -22,49 +25,69 @@ public class TopicController(
 {
     [HttpGet("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(TopicGetByIdQueryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TopicGetByIdResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByIdAsync(
+    public async Task<ActionResult<TopicGetByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
-        var response = await topicGetByIdQueryHandler.HandleAsync(
-            new TopicGetByIdQuery(id),
-            cancellationToken
-        );
+        var query = new TopicGetByIdQuery(id);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await topicGetByIdQueryHandler.HandleAsync(query, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = TopicResponseMappings.ToTopicGetByIdResponse(response);
+
+        return Ok(result);
     }
 
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(TopicCreateCommandResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(TopicCreateResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateAsync(
-        [FromBody] TopicCreateCommand request,
+    public async Task<ActionResult<TopicCreateResponse>> CreateAsync(
+        [FromBody] TopicCreateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await topicCreateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = new TopicCreateCommand(request.Title);
 
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+        var response = await topicCreateCommandHandler.HandleAsync(command, cancellationToken);
+        
+        var result = TopicResponseMappings.ToTopicCreateResponse(response);
+
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(TopicUpdateCommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TopicUpdateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateAsync(
-        [FromBody] TopicUpdateCommand request,
+    public async Task<ActionResult<TopicUpdateResponse>> UpdateAsync(
+        [FromRoute] Guid id,
+        [FromBody] TopicUpdateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await topicUpdateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = new TopicUpdateCommand(id, request.Title);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await topicUpdateCommandHandler.HandleAsync(command, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = TopicResponseMappings.ToTopicUpdateResponse(response);
+
+        return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
@@ -77,7 +100,9 @@ public class TopicController(
         CancellationToken cancellationToken
     )
     {
-        await topicDeleteCommandHandler.HandleAsync(new TopicDeleteCommand(id), cancellationToken);
+        var command = new TopicDeleteCommand(id);
+
+        await topicDeleteCommandHandler.HandleAsync(command, cancellationToken);
 
         return NoContent();
     }

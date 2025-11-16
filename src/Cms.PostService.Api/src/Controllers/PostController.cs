@@ -2,6 +2,9 @@ using System;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using Cms.PostService.Api.Contracts.Requests;
+using Cms.PostService.Api.Contracts.Responses;
+using Cms.PostService.Api.Mappings;
 using Cms.PostService.Application.Contracts.Commands;
 using Cms.PostService.Application.Contracts.Queries;
 using Cms.PostService.Application.Handlers.Commands.Interfaces;
@@ -25,49 +28,58 @@ public class PostController(
 {
     [HttpGet("pagination")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PostGetPaginationQueryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostGetPaginationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PaginationAsync(
-        [FromQuery] PostGetPaginationQuery request,
+    public async Task<ActionResult<PostGetPaginationResponse>> PaginationAsync(
+        [FromQuery] PostGetPaginationRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await postGetPaginationQueryHandler.HandleAsync(request, cancellationToken);
+        var query = new PostGetPaginationQuery(request.Page, request.PageSize);
 
-        return Ok(response);
+        var response = await postGetPaginationQueryHandler.HandleAsync(query, cancellationToken);
+
+        var result = PostResponseMappings.ToPostGetPaginationResponse(response);
+
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PostGetByIdQueryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostGetByIdResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetByIdAsync(
+    public async Task<ActionResult<PostGetByIdResponse>> GetByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
-        var response = await postGetByIdQueryHandler.HandleAsync(
-            new PostGetByIdQuery(id),
-            cancellationToken
-        );
+        var query = new PostGetByIdQuery(id);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await postGetByIdQueryHandler.HandleAsync(query, cancellationToken);
+
+        var result = PostResponseMappings.ToPostGetByIdResponse(response);
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PostCreateQueryResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(PostCreateCommandResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateAsync(
-        [FromBody] PostCreateQuery request,
+        [FromBody] PostCreateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await postCreateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = PostRequestMappings.ToPostCreateCommand(request);
 
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+        var response = await postCreateCommandHandler.HandleAsync(command, cancellationToken);
+
+        var result = PostResponseMappings.ToPostCreateResponse(response);
+
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
@@ -76,13 +88,18 @@ public class PostController(
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateAsync(
-        [FromBody] PostUpdateCommand request,
+        [FromRoute] Guid id,
+        [FromBody] PostUpdateRequest request,
         CancellationToken cancellationToken
     )
     {
-        var response = await postUpdateCommandHandler.HandleAsync(request, cancellationToken);
+        var command = PostRequestMappings.ToPostUpdateCommand(request, id);        
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await postUpdateCommandHandler.HandleAsync(command, cancellationToken);
+
+        var result = PostResponseMappings.ToPostUpdateResponse(response);
+
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
@@ -95,44 +112,58 @@ public class PostController(
         CancellationToken cancellationToken
     )
     {
-        await postDeleteCommandHandler.HandleAsync(new PostDeleteCommand(id), cancellationToken);
+        var command = new PostDeleteCommand(id);
+
+        await postDeleteCommandHandler.HandleAsync(command, cancellationToken);
 
         return NoContent();
     }
 
     [HttpPut("{id:guid}/workflow/next")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PostWorkflowNextCommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostWorkflowNextResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> WorkflowNextAsync(
+    public async Task<ActionResult<PostWorkflowNextResponse>> WorkflowNextAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
-        var response = await postWorkflowNextCommandHandler.HandleAsync(
-            new PostWorkflowNextCommand(id),
-            cancellationToken
-        );
+        var command = new PostWorkflowNextCommand(id);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await postWorkflowNextCommandHandler.HandleAsync(command, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = new PostWorkflowNextResponse(response.Id, response.Status);
+
+        return Ok(result);
     }
 
     [HttpPut("{id:guid}/workflow/back")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(PostWorkflowBackCommandResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostWorkflowBackResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> WorkflowBackAsync(
+    public async Task<ActionResult<PostWorkflowBackResponse>> WorkflowBackAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
-        var response = await postWorkflowBackCommandHandler.HandleAsync(
-            new PostWorkflowBackCommand(id),
-            cancellationToken
-        );
+        var command = new PostWorkflowBackCommand(id);
 
-        return response is null ? NotFound() : Ok(response);
+        var response = await postWorkflowBackCommandHandler.HandleAsync(command, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        var result = new PostWorkflowBackResponse(response.Id, response.Status);
+
+        return Ok(result);
     }
 }

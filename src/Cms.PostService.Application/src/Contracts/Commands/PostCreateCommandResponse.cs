@@ -4,7 +4,7 @@ using Cms.PostService.Application.Contracts.Dtos;
 
 namespace Cms.PostService.Application.Contracts.Commands;
 
-public record PostCreateQueryResponse(
+public record PostCreateCommandResponse(
     Guid Id,
     string Title,
     Guid ListingImageId,

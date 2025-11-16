@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Cms.PostService.Application.Contracts.Dtos;
+using Cms.PostService.Api.Contracts.Dtos;
 
-namespace Cms.PostService.Application.Contracts.Commands;
+namespace Cms.PostService.Api.Contracts.Requests;
 
-public record PostCreateQuery(
+public record PostCreateRequest(
     string Title,
     Guid ListingImageId,
     Guid TopicId,
