@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Cms.PostService.Api.Extensions;
+namespace Cms.PostService.Api.Setups;
 
-internal static class ProblemDetailsExtensions
+internal static class ProblemDetailsSetup
 {
-    public static IServiceCollection ConfigureProblemDetails(
+    public static IServiceCollection SetupProblemDetails(
         this IServiceCollection services,
         IHostEnvironment environment
     )

@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
-using Cms.PostService.Api.Extensions;
+using Cms.PostService.Api.Setups;
 using Cms.PostService.Application;
+using Cms.PostService.Infrastructure;
 using Cms.Shared.Setups;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,41 +12,41 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication
+            .CreateBuilder(args)
+            .SetupBuilder();
 
-        builder.Logging.ConfigureOtel();
+        using var app = builder
+            .Build()
+            .SetupApplication();
 
-        builder.Services.ConfigureOtel();
+        app.Run();
+    }
+
+    private static WebApplicationBuilder SetupBuilder(this WebApplicationBuilder builder)
+    {
+        builder.Logging.SetupOpenTelemetry();
+        builder.Services.SetupOpenTelemetry();
 
         var healthChecksBuilder = builder.Services.AddHealthChecks();
 
-        builder.Services.AddApplication(builder.Configuration, healthChecksBuilder);
+        healthChecksBuilder.SetupHealthCheck(builder.Configuration);
 
-        builder
-            .Services.AddControllers(options =>
-            {
-                options.SuppressAsyncSuffixInActionNames = false;
-            })
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(
-                    // show enum value in swagger.
-                    new JsonStringEnumConverter()
-                );
-            });
+        builder.Services.AddApplication();
+        builder.Services.AddInfrastructure(healthChecksBuilder, builder.Configuration);
 
-        builder.Services.ConfigureProblemDetails(builder.Environment);
-
+        builder.Services.SetupControllers();
+        builder.Services.SetupProblemDetails(builder.Environment);
         builder.Services.SetupApiConfiguration(builder.Configuration);
-
-        healthChecksBuilder.ConfigureHealthCheck(builder.Configuration);
+        builder.Services.SetupWolverine(builder.Configuration);
 
         builder.Services.AddOpenApi();
 
-        builder.Services.ConfigureWolverine(builder.Configuration);
+        return builder;
+    }
 
-        using var app = builder.Build();
-
+    private static WebApplication SetupApplication(this WebApplication app)
+    {
         app.MapOpenApi();
 
         app.UseExceptionHandler();
@@ -58,6 +58,6 @@ public static class Program
 
         app.MapScalarApiReference();
 
-        app.Run();
+        return app;
     }
 }

@@ -4,11 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Wolverine;
 using Wolverine.RabbitMQ;
 
-namespace Cms.PostService.Api.Extensions;
+namespace Cms.PostService.Api.Setups;
 
-public static class WolverineExtension
+public static class WolverineSetup
 {
-    public static void ConfigureWolverine(
+    public static void SetupWolverine(
         this IServiceCollection services,
         IConfiguration configuration
     )

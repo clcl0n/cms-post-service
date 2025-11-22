@@ -2,9 +2,9 @@ using Cms.Shared.Setups;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cms.PostService.Api.Extensions;
+namespace Cms.PostService.Api.Setups;
 
-public static class ConfigurationExtension
+public static class ConfigurationSetup
 {
     public static void SetupApiConfiguration(
         this IServiceCollection services,
