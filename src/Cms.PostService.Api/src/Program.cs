@@ -4,6 +4,7 @@ using Cms.PostService.Infrastructure;
 using Cms.Shared.Setups;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
 
 namespace Cms.PostService.Api;
@@ -20,7 +21,7 @@ public static class Program
             .Build()
             .SetupApplication();
 
-        app.Run();
+        app.RunWithGraphQLCommands(args);
     }
 
     private static WebApplicationBuilder SetupBuilder(this WebApplicationBuilder builder)
@@ -36,6 +37,7 @@ public static class Program
         builder.Services.AddInfrastructure(healthChecksBuilder, builder.Configuration);
 
         builder.Services.SetupControllers();
+        builder.SetupGraphQL();
         builder.Services.SetupProblemDetails(builder.Environment);
         builder.Services.SetupApiConfiguration(builder.Configuration);
         builder.Services.SetupWolverine(builder.Configuration);
@@ -57,6 +59,8 @@ public static class Program
         app.MapControllers();
 
         app.MapScalarApiReference();
+
+        app.MapGraphQL();
 
         return app;
     }

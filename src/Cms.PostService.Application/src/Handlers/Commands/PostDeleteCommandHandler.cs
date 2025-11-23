@@ -16,7 +16,7 @@ internal sealed class PostDeleteCommandHandler(
 {
     public async Task HandleAsync(PostDeleteCommand request, CancellationToken cancellationToken)
     {
-        var post = await unitOfWork.PostRepository.GetByIdAsync(request.Id, cancellationToken);
+        var post = await unitOfWork.PostRepository.GetByIdAsync(request.Id, withTracking: true, cancellationToken);
 
         if (post == null)
         {

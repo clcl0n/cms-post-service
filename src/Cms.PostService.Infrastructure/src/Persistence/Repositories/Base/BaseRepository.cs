@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cms.PostService.Domain.Entities;
@@ -19,9 +21,19 @@ internal abstract class BaseRepository<TEntity>(DbContext dbContext) : IBaseRepo
         return Entities.AsTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public Task<TEntity?> GetByIdAsync(Guid id, bool withTracking = false, CancellationToken cancellationToken = default)
     {
-        return Entities.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var query = withTracking ? Entities.AsTracking() : Entities.AsNoTracking();
+
+        return query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public Task<List<TEntity>> GetByIdsAsync(List<Guid> ids, CancellationToken cancellationToken)
+    {
+        return Entities
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
     }
 
     public async Task InsertAsync(TEntity entity, CancellationToken cancellationToken)

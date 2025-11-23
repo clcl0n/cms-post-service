@@ -11,13 +11,13 @@ namespace Cms.PostService.Application.Handlers.Commands;
 internal sealed class TopicDeleteCommandHandler(IRouteService routeService, IUnitOfWork unitOfWork)
     : ITopicDeleteCommandHandler
 {
-    public async Task HandleAsync(TopicDeleteCommand request, CancellationToken cancellationToken)
+    public async Task<bool> HandleAsync(TopicDeleteCommand request, CancellationToken cancellationToken)
     {
-        var topic = await unitOfWork.TopicRepository.GetByIdAsync(request.Id, cancellationToken);
+        var topic = await unitOfWork.TopicRepository.GetByIdAsync(request.Id, withTracking: true, cancellationToken);
 
         if (topic == null)
         {
-            return;
+            return false;
         }
 
         await unitOfWork.TopicRepository.DeleteAsync(topic, cancellationToken);
@@ -26,5 +26,7 @@ internal sealed class TopicDeleteCommandHandler(IRouteService routeService, IUni
         {
             await routeService.DeleteTopicRouteAsync(new DeleteTopicRouteCommand(route.Id), cancellationToken);
         }
+
+        return true;
     }
 }

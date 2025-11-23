@@ -1,0 +1,6 @@
+using System.Collections.Generic;
+using Cms.PostService.Application.Contracts.Dtos;
+
+namespace Cms.PostService.Application.Contracts.Queries;
+
+public record TopicGetByIdsQueryResponse(List<TopicDto> Topics);

@@ -3,5 +3,5 @@ using Cms.Shared.Handlers.Interfaces.Base;
 
 namespace Cms.PostService.Application.Handlers.Queries.Interfaces;
 
-public interface ITopicGetByIdQueryHandler
-    : IBaseHandler<TopicGetByIdQuery, TopicGetByIdQueryResponse?>;
+public interface ISubTopicGetByIdsQueryHandler
+    : IBaseHandler<SubTopicGetByIdsQuery, SubTopicGetByIdsQueryResponse>;

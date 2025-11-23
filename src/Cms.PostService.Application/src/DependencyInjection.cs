@@ -13,12 +13,11 @@ public static class DependencyInjection
         services.AddScoped<ISubTopicCreateCommandHandler, SubTopicCreateCommandHandler>();
         services.AddScoped<ISubTopicUpdateCommandHandler, SubTopicUpdateCommandHandler>();
         services.AddScoped<ISubTopicDeleteCommandHandler, SubTopicDeleteCommandHandler>();
-        services.AddScoped<ISubTopicGetByIdQueryHandler, SubTopicGetByIdQueryHandler>();
 
         services.AddScoped<ITopicCreateCommandHandler, TopicCreateCommandHandler>();
         services.AddScoped<ITopicUpdateCommandHandler, TopicUpdateCommandHandler>();
         services.AddScoped<ITopicDeleteCommandHandler, TopicDeleteCommandHandler>();
-        services.AddScoped<ITopicGetByIdQueryHandler, TopicGetByIdQueryHandler>();
+        services.AddScoped<ITopicGetByIdsQueryHandler, TopicGetByIdsQueryHandler>();
 
         services.AddScoped<IPostCreateCommandHandler, PostCreateCommandHandler>();
         services.AddScoped<IPostUpdateCommandHandler, PostUpdateCommandHandler>();

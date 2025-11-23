@@ -13,16 +13,16 @@ internal sealed class SubTopicDeleteCommandHandler(
     IUnitOfWork unitOfWork
 ) : ISubTopicDeleteCommandHandler
 {
-    public async Task HandleAsync(
+    public async Task<bool> HandleAsync(
         SubTopicDeleteCommand request,
         CancellationToken cancellationToken
     )
     {
-        var topic = await unitOfWork.SubTopicRepository.GetByIdAsync(request.Id, cancellationToken);
+        var topic = await unitOfWork.SubTopicRepository.GetByIdAsync(request.Id, withTracking: true, cancellationToken);
 
         if (topic == null)
         {
-            return;
+            return false;
         }
 
         await unitOfWork.SubTopicRepository.DeleteAsync(topic, cancellationToken);
@@ -31,5 +31,7 @@ internal sealed class SubTopicDeleteCommandHandler(
         {
             await routeService.DeleteTopicRouteAsync(new DeleteTopicRouteCommand(route.Id), cancellationToken);
         }
+
+        return true;
     }
 }
